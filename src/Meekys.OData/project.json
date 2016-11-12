@@ -1,0 +1,43 @@
+{
+    "name": "Meekys.OData",
+    "version": "0.0.1-*",
+    "copyrigt": "Meekys (Sean Meechan)",
+
+    "buildOptions": {
+        "warningsAsErrors": true,
+        "preserveCompilationContext": true,
+        "debugType": "portable"
+    },
+
+    "dependencies": {
+        "Meekys.Common": "0.1.*"
+    },
+  
+    "frameworks": {
+        "netcoreapp1.0": {
+            "dependencies": {
+                "Microsoft.NETCore.App": {
+                    "type": "platform",
+                    "version": "1.0.1"
+                }
+            },
+            "imports": [
+                "dotnet5.6",
+                "dnxcore50",
+                "portable-net45+win8"
+            ]
+        }
+    },
+  
+    "tools": {},
+
+    "tooling": {
+        "defaultNamespace": "Meekys.OData"
+    },
+  
+    "packOptions": {
+        "summary": "OData queryable extentions",
+        "projectUrl": "https://github.com/meekys/Meekys.OData",
+        "licenseUrl": "https://github.com/meekys/Meekys.OData/blob/master/LICENSE.md"
+    }
+}
