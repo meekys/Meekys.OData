@@ -1,21 +1,17 @@
 param (
-    [parameter(Mandatory=$true)]
-    [string] $projectName,
     [string] $configuration = "Debug",
     [string] $outputPath = ".",
     [string] $versionSuffix
 )
 
-$project = ls project.json -recurse | `
-    ? {
-        $_.Directory.Name -eq $projectName
+ls src\project.json -recurse | `
+    % {
+        Write-Host -ForegroundColor Cyan "dotnet pack $_"
+
+        if ("$versionSuffix" -eq "") {
+            dotnet pack $_ -c $configuration -o $outputPath
+        }
+        else {
+            dotnet pack $_ -c $configuration -o $outputPath --version-suffix $versionSuffix
+        }
     }
-
-Write-Host -ForegroundColor Cyan "dotnet pack $project"
-
-if ("$versionSuffix" -eq "") {
-    dotnet pack $project -c $configuration -o $outputPath
-}
-else {
-    dotnet pack $project -c $configuration -o $outputPath --version-suffix $versionSuffix
-}
