@@ -56,13 +56,7 @@ namespace Meekys.OData.Expressions
             { "not", Expression.Not }    
         };
         
-        private static readonly Dictionary<string, MethodInfo> FunctionMap =
-            new Dictionary<string, MethodInfo>
-        {
-            { "substring", null }
-        };
-
-        private static readonly Type[] NumericTypes = new[]
+        private static readonly Type[] CastTypes = new[]
         {
             typeof(double),
             typeof(float),
@@ -70,7 +64,8 @@ namespace Meekys.OData.Expressions
             typeof(long),
             typeof(int),
             typeof(short),
-            typeof(byte)
+            typeof(byte),
+            typeof(bool)
         };
 
         private static readonly Type[] ConstantParsers = new[]
@@ -198,22 +193,43 @@ namespace Meekys.OData.Expressions
         
         private void CastParameters(ref Expression left, ref Expression right)
         {
-            if (!left.Type.In(NumericTypes) || !right.Type.In(NumericTypes))
+            var leftType = Nullable.GetUnderlyingType(left.Type) ?? left.Type;
+            var rightType = Nullable.GetUnderlyingType(right.Type) ?? right.Type;
+
+            if (!leftType.In(CastTypes) || !rightType.In(CastTypes))
                 return;
 
+            if (TryCastParameters<double?>(ref left, ref right))
+                return;
             if (TryCastParameters<double>(ref left, ref right))
+                return;
+            if (TryCastParameters<float?>(ref left, ref right))
                 return;
             if (TryCastParameters<float>(ref left, ref right))
                 return;
+            if (TryCastParameters<decimal?>(ref left, ref right))
+                return;
             if (TryCastParameters<decimal>(ref left, ref right))
+                return;
+            if (TryCastParameters<long?>(ref left, ref right))
                 return;
             if (TryCastParameters<long>(ref left, ref right))
                 return;
+            if (TryCastParameters<int?>(ref left, ref right))
+                return;
             if (TryCastParameters<int>(ref left, ref right))
+                return;
+            if (TryCastParameters<short?, int?>(ref left, ref right))
                 return;
             if (TryCastParameters<short, int>(ref left, ref right))
                 return;
+            if (TryCastParameters<byte?, int?>(ref left, ref right))
+                return;
             if (TryCastParameters<byte, int>(ref left, ref right))
+                return;
+            if (TryCastParameters<bool?>(ref left, ref right))
+                return;
+            if (TryCastParameters<bool>(ref left, ref right))
                 return;
         }
 
@@ -226,7 +242,7 @@ namespace Meekys.OData.Expressions
         {
             if (left.Type != typeof(TCastFrom) && right.Type != typeof(TCastFrom))
                 return false;
-                
+
             if (right.Type != typeof(TCastTo))
                 right = CastExpressionBuilder.Build<TCastTo>(right);
 
@@ -369,7 +385,7 @@ namespace Meekys.OData.Expressions
                 return null;
 
             string propertyName = _tokens.Current;
-            var property = typeof(T).GetProperty(propertyName);
+            var property = typeof(T).GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
             
             if (property == null)
                 return null;

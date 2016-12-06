@@ -6,6 +6,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 
+using Meekys.Common.Extensions;
+
 namespace Meekys.OData.Expressions
 {
     public class CastExpressionBuilder
@@ -27,7 +29,7 @@ namespace Meekys.OData.Expressions
                 return Expression.Convert(input, castTo); // If it's a property/method/etc, convert it
 
             // If it's a constant, convert it inline
-            return Expression.Constant(Convert.ChangeType(constant.Value, castTo), castTo);
+            return Expression.Constant(Convert.ChangeType(constant.Value, Nullable.GetUnderlyingType(castTo) ?? castTo), castTo);
         }
     }
 }
