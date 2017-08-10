@@ -1,3 +1,6 @@
-Write-Host -ForegroundColor Cyan "dotnet restore"
+ls *.csproj -recurse | `
+    % {
+        Write-Host -ForegroundColor Cyan "dotnet restore $_"
 
-dotnet restore -v Minimal
+        dotnet restore -v Minimal $_
+    } 

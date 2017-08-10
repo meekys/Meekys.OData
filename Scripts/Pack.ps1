@@ -4,7 +4,7 @@ param (
     [string] $versionSuffix
 )
 
-ls src\project.json -recurse | `
+ls src\*.csproj -recurse | `
     % {
         Write-Host -ForegroundColor Cyan "dotnet pack $_"
 
