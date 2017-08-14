@@ -2,7 +2,7 @@ param (
     [string] $configuration = "Debug"
 )
 
-ls project.json -recurse | `
+ls *.csproj -recurse | `
     % {
         Write-Host -ForegroundColor Cyan "dotnet build $_"
 

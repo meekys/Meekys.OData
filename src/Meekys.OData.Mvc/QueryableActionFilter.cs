@@ -56,7 +56,7 @@ namespace Meekys.OData.Mvc
                 query = query.Skip(context.Skip);
                 
             if (context.Top > 0)
-                query = query.Skip(context.Top);
+                query = query.Take(context.Top);
                 
             return query;
         }

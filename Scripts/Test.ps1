@@ -6,9 +6,16 @@ if (!(Test-Path test)) {
     exit
 }
 
-ls test\project.json -recurse | `
+ls test\*.csproj -recurse | `
     % {
         Write-Host -ForegroundColor Cyan "dotnet test $_"
         
-        dotnet test $_ -c $configuration -xml "$($_.DirectoryName)\Test-Results.xml"
+        pushd $_.Directory
+        try {
+            dotnet xunit -xml "$($_.DirectoryName)\Test-Results.xml"
+        }
+        finally
+        {
+            popd
+        }
     }

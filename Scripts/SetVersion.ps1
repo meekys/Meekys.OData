@@ -3,18 +3,18 @@ param (
     [string] $version
 )
 
-ls project.json -recurse | `
+ls src\*.csproj -recurse | `
     % {
         Write-Host -ForegroundColor Cyan "SetVersion $_"
 
-        $project = Get-Content $_ -raw | ConvertFrom-Json
+        [xml]$project = gc $_ 
 
-        $oldVersion = $project.version
-        $newVersion = "$version-*"
+        $oldVersion = $project.Project.PropertyGroup.VersionPrefix
+        $newVersion = "$version"
 
-        $project.version = $newVersion
+        $project.Project.PropertyGroup.VersionPrefix = $newVersion
 
-        $project | ConvertTo-Json -Depth 32 | Set-Content $_
+        $project.Save((Resolve-Path $_))
 
         Write-Host -ForegroundColor Cyan "`t$oldVersion -> $newVersion"
     }

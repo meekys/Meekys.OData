@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <VersionPrefix>0.0.1</VersionPrefix>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DebugType>portable</DebugType>
+    <AssemblyName>Meekys.OData.Mvc</AssemblyName>
+    <PackageId>Meekys.OData.Mvc</PackageId>
+    <PackageProjectUrl>https://github.com/meekys/Meekys.OData</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/meekys/Meekys.OData/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageTargetFallback>$(PackageTargetFallback);dotnet5.6;dnxcore50;portable-net45+win8</PackageTargetFallback>
+    <RuntimeFrameworkVersion>1.0.4</RuntimeFrameworkVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Meekys.OData\Meekys.OData.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.*" />
+    <PackageReference Include="Meekys.Common" Version="0.1.*" />
+  </ItemGroup>
+
+</Project>
