@@ -12,7 +12,7 @@ namespace Meekys.OData.Tests.Expressions.TokenParsers
     public class BinaryTokenParserTests
     {
         private BinaryTokenParser _parser = new BinaryTokenParser();
-        
+
         [Theory]
         [InlineData("binary'deadbeef'")]
         [InlineData("binary'DEADBEEF'")]
@@ -24,25 +24,28 @@ namespace Meekys.OData.Tests.Expressions.TokenParsers
         {
             // Act
             var result = _parser.Parse(token);
-            
+
             // Assert
             Assert.IsType<ConstantExpression>(result);
             Assert.Equal(new byte[] { 0xde, 0xad, 0xbe, 0xef }, (result as ConstantExpression).Value);
         }
-        
+
         [Theory]
         [InlineData("binary'Invalid'")]
         [InlineData("X'Invalid'")]
         [InlineData("X'Deadbee'")]
         public void Test_Invalid_Binary(string token)
         {
+            // Arrange
+            var expected = token.Split('\'')[1];
+
             // Act
             var result = Assert.Throws<FormatException>(() => (object)_parser.Parse(token));
-            
+
             // Assert
-            Assert.StartsWith("Unable to parse binary token: ", result.Message);
+            Assert.Equal($"Unable to parse binary token: {expected}", result.Message);
         }
-        
+
         [Theory]
         [InlineData("Invalid")]
         [InlineData("BINARY'Invalid'")]
@@ -51,9 +54,9 @@ namespace Meekys.OData.Tests.Expressions.TokenParsers
         {
             // Act
             var result = _parser.Parse(token);
-            
+
             // Assert
-            Assert.Equal(null, result);
+            Assert.Null(result);
         }
     }
 }

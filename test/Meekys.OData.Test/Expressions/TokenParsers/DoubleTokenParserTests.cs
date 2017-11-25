@@ -12,7 +12,7 @@ namespace Meekys.OData.Tests.Expressions.TokenParsers
     public class DoubleTokenParserTests
     {
         private DoubleTokenParser _parser = new DoubleTokenParser();
-        
+
         [Theory]
         [InlineData("0D", 0d)]
         [InlineData("1D", 1d)]
@@ -22,10 +22,10 @@ namespace Meekys.OData.Tests.Expressions.TokenParsers
         [InlineData("1.1e5D", 1.1e5d)]
         [InlineData("-1.1E-5D", -1.1e-5d)]
         public void Test_Double(string token, double expected)
-        {   
+        {
             // Act
             var result = _parser.Parse(token);
-            
+
             // Assert
             Assert.IsType<ConstantExpression>(result);
             Assert.Equal(expected, (result as ConstantExpression).Value);
@@ -38,20 +38,20 @@ namespace Meekys.OData.Tests.Expressions.TokenParsers
         {
             // Act
             var result = Assert.Throws<FormatException>(() => (object)_parser.Parse(token));
-            
+
             // Assert
-            Assert.Equal(String.Format("Unable to parse Double token: {0}", token), result.Message);
+            Assert.Equal($"Unable to parse Double token: {token}", result.Message);
         }
-        
+
         [Theory]
         [InlineData("Invalid")]
         public void Test_Passthrough(string token)
         {
             // Act
             var result = _parser.Parse(token);
-            
+
             // Assert
-            Assert.Equal(null, result);
+            Assert.Null(result);
         }
     }
 }

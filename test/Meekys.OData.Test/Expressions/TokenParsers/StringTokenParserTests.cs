@@ -12,7 +12,7 @@ namespace Meekys.OData.Tests.Expressions.TokenParsers
     public class StringTokenParserTests
     {
         private StringTokenParser _parser = new StringTokenParser();
-        
+
         [Theory]
         [InlineData("'string'", "string")]
         [InlineData("'string with ''escaped'' quotes'", "string with 'escaped' quotes")]
@@ -20,21 +20,21 @@ namespace Meekys.OData.Tests.Expressions.TokenParsers
         {
             // Act
             var result = _parser.Parse(token);
-            
+
             // Assert
             Assert.IsType<ConstantExpression>(result);
             Assert.Equal(expected, (result as ConstantExpression).Value);
         }
-        
+
         [Theory]
         [InlineData("Invalid")]
         public void Test_Passthrough(string token)
         {
             // Act
             var result = _parser.Parse(token);
-            
+
             // Assert
-            Assert.Equal(null, result);
+            Assert.Null(result);
         }
     }
 }

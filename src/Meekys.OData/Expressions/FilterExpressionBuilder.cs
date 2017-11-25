@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -11,22 +12,35 @@ using Meekys.OData.Expressions.TokenParsers;
 
 namespace Meekys.OData.Expressions
 {
-    public class FilterExpressionBuilder<T>
+    public static class FilterExpressionBuilder
     {
+        public static Expression<Func<T, bool>> Build<T>(string filter)
+        {
+            var builder = new FilterExpressionBuilder<T>(filter);
+
+            return builder.BuildBoolExpression();
+        }
+    }
+
+    [SuppressMessage("Microsoft.StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleClass", Justification = "Generic implementation of same class")]
+    public class FilterExpressionBuilder<T> : IDisposable
+    {
+        private const string NoToken = "{No Token}";
+
         private static readonly Dictionary<string, Func<Expression, Expression, BinaryExpression>> LogicalOrMap =
-            new Dictionary<string, Func<Expression, Expression, BinaryExpression>>
+            new Dictionary<string, Func<Expression, Expression, BinaryExpression>>(StringComparer.OrdinalIgnoreCase)
         {
             { "or", Expression.OrElse }
         };
-             
+
         private static readonly Dictionary<string, Func<Expression, Expression, BinaryExpression>> LogicalAndMap =
-            new Dictionary<string, Func<Expression, Expression, BinaryExpression>>
+            new Dictionary<string, Func<Expression, Expression, BinaryExpression>>(StringComparer.OrdinalIgnoreCase)
         {
             { "and", Expression.AndAlso }
         };
 
         private static readonly Dictionary<string, Func<Expression, Expression, BinaryExpression>> LogicalComparisonMap =
-            new Dictionary<string, Func<Expression, Expression, BinaryExpression>>
+            new Dictionary<string, Func<Expression, Expression, BinaryExpression>>(StringComparer.OrdinalIgnoreCase)
         {
             { "eq", Expression.Equal },
             { "ne", Expression.NotEqual },
@@ -35,27 +49,27 @@ namespace Meekys.OData.Expressions
             { "lt", Expression.LessThan },
             { "le", Expression.LessThanOrEqual }
         };
-        
+
         private static readonly Dictionary<string, Func<Expression, Expression, BinaryExpression>> AdditiveMap =
-            new Dictionary<string, Func<Expression, Expression, BinaryExpression>>
+            new Dictionary<string, Func<Expression, Expression, BinaryExpression>>(StringComparer.OrdinalIgnoreCase)
         {
             { "add", Expression.Add },
             { "sub", Expression.Subtract }
         };
-        
+
         private static readonly Dictionary<string, Func<Expression, Expression, BinaryExpression>> MultiplicativeMap =
-            new Dictionary<string, Func<Expression, Expression, BinaryExpression>>
+            new Dictionary<string, Func<Expression, Expression, BinaryExpression>>(StringComparer.OrdinalIgnoreCase)
         {
             { "div", Expression.Divide },
             { "mul", Expression.Multiply }
         };
-        
+
         private static readonly Dictionary<string, Func<Expression, UnaryExpression>> UnaryMap =
-            new Dictionary<string, Func<Expression, UnaryExpression>>
+            new Dictionary<string, Func<Expression, UnaryExpression>>(StringComparer.OrdinalIgnoreCase)
         {
-            { "not", Expression.Not }    
+            { "not", Expression.Not }
         };
-        
+
         private static readonly Type[] CastTypes = new[]
         {
             typeof(double),
@@ -73,67 +87,63 @@ namespace Meekys.OData.Expressions
             typeof(NullTokenParser),
             typeof(StringTokenParser),
             typeof(DateTimeTokenParser),
-            //typeof(TimeTokenParser),
-            //typeof(DateTimeOffsetTokenParser),
+            //// typeof(TimeTokenParser),
+            //// typeof(DateTimeOffsetTokenParser),
             typeof(BooleanTokenParser),
             typeof(DoubleTokenParser),
             typeof(FloatTokenParser),
             typeof(DecimalTokenParser),
             typeof(ByteTokenParser),
-            //typeof(SByteTokenParser),
+            //// typeof(SByteTokenParser),
             typeof(Int16TokenParser),
             typeof(Int32TokenParser),
             typeof(Int64TokenParser),
             typeof(GuidTokenParser),
             typeof(BinaryTokenParser)
         };
-        
-        public static Expression<Func<T, bool>> Build(string filter)
-        {            
-            var builder = new FilterExpressionBuilder<T>(filter);
-            
-            return builder.BuildBoolExpression();
-        }
-        
-        private const string NoToken = "{No Token}";
+
+        private readonly int _maxDepth;
 
         private BufferedEnumerator<FilterToken> _tokens;
-        private readonly int _maxDepth;
-        
+
         private ParameterExpression _parameter;
         private List<ITokenParser> _constantParsers;
-        
-        public int MaxDepth { get { return _maxDepth; }}
-        
+        private bool _disposed;
+
+        public int MaxDepth
+        {
+            get { return _maxDepth; }
+        }
+
         public int RecursionDepth { get; set; }
 
-        private FilterExpressionBuilder(string filter)
-        {     
+        public FilterExpressionBuilder(string filter)
+        {
             _maxDepth = 100;
             InitConstantParsers();
 
-            var tokenizer = new FilterTokenizer(filter);
-            
+            var tokenizer = new FilterTokeniser(filter);
+
             _tokens = new BufferedEnumerator<FilterToken>(tokenizer.Tokens.GetEnumerator(), 1);
             _parameter = Expression.Parameter(typeof(T), "item");
 
             if (!_tokens.MoveNext())
                 throw new ArgumentException("Expected expression", nameof(filter));
         }
-        
-        private Expression<Func<T, bool>> BuildBoolExpression()
+
+        public Expression<Func<T, bool>> BuildBoolExpression()
         {
             var expression = BuildExpression();
 
             if (_tokens.Current != null)
                 throw new FilterExpressionException($"Unexpected token: {_tokens.Current}");
 
-            if (expression.Type != typeof(Boolean))
+            if (expression.Type != typeof(bool))
                 throw new FilterExpressionException("Expected boolean expression");
 
             return Expression.Lambda<Func<T, bool>>(expression, _parameter);
         }
-        
+
         private Expression BuildExpression()
         {
             using (RecurseIn())
@@ -149,9 +159,9 @@ namespace Meekys.OData.Expressions
             if (_tokens.Current == null)
                 return false;
 
-            return map.TryGetValue(_tokens.Current.Token.ToLowerInvariant(), out op);
+            return map.TryGetValue(_tokens.Current.Token, out op);
         }
-        
+
         private bool CurrentOperator(Dictionary<string, Func<Expression, UnaryExpression>> map, out Func<Expression, UnaryExpression> op)
         {
             op = null;
@@ -159,20 +169,20 @@ namespace Meekys.OData.Expressions
             if (_tokens.Current == null)
                 return false;
 
-            return map.TryGetValue(_tokens.Current.Token.ToLowerInvariant(), out op);
+            return map.TryGetValue(_tokens.Current.Token, out op);
         }
-        
+
         private bool CheckToken(string expected)
         {
             var found = _tokens.Current == expected;
-            
+
             if (found)
                 _tokens.MoveNext();
-                
+
             return found;
         }
 
-        private void ExpectToken()  
+        private void ExpectToken()
         {
             if (!_tokens.MoveNext())
                 throw new FilterExpressionException($"Expected token after {(_tokens.HasPrevious() ? _tokens.Previous().ToString() : NoToken)}");
@@ -181,16 +191,18 @@ namespace Meekys.OData.Expressions
         private void ExpectToken(string expected)
         {
             if (_tokens.Current != expected)
+            {
                 if (_tokens.Current != null)
                     throw new FilterExpressionException($"Expected {expected} but got {_tokens.Current}");
                 else if (_tokens.HasPrevious())
                     throw new FilterExpressionException($"Expected {expected} but got {NoToken} after {_tokens.Previous()}");
                 else
                     throw new FilterExpressionException($"Expected {expected} but got {NoToken}");
-                
+            }
+
             _tokens.MoveNext();
         }
-        
+
         private void CastParameters(ref Expression left, ref Expression right)
         {
             var leftType = Nullable.GetUnderlyingType(left.Type) ?? left.Type;
@@ -259,13 +271,13 @@ namespace Meekys.OData.Expressions
                 var left = leftOrRightFunc();
 
                 Func<Expression, Expression, BinaryExpression> op;
-                
+
                 while (CurrentOperator(operatorMap, out op))
                 {
                     ExpectToken();
-                    
+
                     var right = leftOrRightFunc();
-                    
+
                     CastParameters(ref left, ref right);
 
                     left = op(left, right);
@@ -274,26 +286,26 @@ namespace Meekys.OData.Expressions
                 return left;
             }
         }
-        
+
         private Expression BuildUnaryExpression(Func<Expression> rightFunc, Dictionary<string, Func<Expression, UnaryExpression>> operatorMap)
         {
             using (RecurseIn())
             {
                 Func<Expression, UnaryExpression> op;
-                
+
                 if (CurrentOperator(operatorMap, out op))
                 {
                     ExpectToken();
-                    
+
                     var right = BuildUnaryExpression(rightFunc, operatorMap);
-                    
+
                     return op(right);
-                };
+                }
 
                 return rightFunc();
             }
         }
-        
+
         private Expression BuildLogicalOr()
         {
             return BuildBinaryExpression(BuildLogicalAnd, LogicalOrMap);
@@ -302,7 +314,6 @@ namespace Meekys.OData.Expressions
         private Expression BuildLogicalAnd()
         {
             return BuildBinaryExpression(BuildComparison, LogicalAndMap);
-
         }
 
         private Expression BuildComparison()
@@ -324,7 +335,7 @@ namespace Meekys.OData.Expressions
         {
             return BuildUnaryExpression(BuildPrimaryExpression, UnaryMap);
         }
-        
+
         private Expression BuildPrimaryExpression()
         {
             using (RecurseIn())
@@ -341,11 +352,11 @@ namespace Meekys.OData.Expressions
         {
             if (!CheckToken(ExpressionConstants.OpenParen))
                 return null;
-            
+
             var expression = BuildExpression();
-            
+
             ExpectToken(ExpressionConstants.CloseParen);
-                        
+
             return expression;
         }
 
@@ -376,7 +387,8 @@ namespace Meekys.OData.Expressions
             do
             {
                 yield return BuildExpression();
-            } while (CheckToken(ExpressionConstants.Comma));
+            }
+            while (CheckToken(ExpressionConstants.Comma));
         }
 
         private Expression BuildMemberExpression()
@@ -385,11 +397,11 @@ namespace Meekys.OData.Expressions
                 return null;
 
             string propertyName = _tokens.Current;
-            var property = typeof(T).GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
-            
+            var property = typeof(T).GetTypeInfo().GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+
             if (property == null)
                 return null;
-                
+
             _tokens.MoveNext();
 
             return Expression.Property(_parameter, property);
@@ -406,36 +418,56 @@ namespace Meekys.OData.Expressions
 
             return expression;
         }
-        
+
         private void InitConstantParsers()
         {
             if (_constantParsers != null)
                 return;
-                
+
             _constantParsers = ConstantParsers
                 .Select(x => (ITokenParser)Activator.CreateInstance(x))
                 .ToList();
         }
-        
+
         private Expression BuildUnknownToken()
         {
-            //if (_tokens.Current != null)
-                throw new FilterExpressionException($"Unrecognised token: {_tokens.Current}");
+            throw new FilterExpressionException($"Unrecognised token: {_tokens.Current}");
         }
-        
+
         private Recurse RecurseIn()
         {
             return new Recurse(this);
         }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+                return;
+
+            if (disposing)
+            {
+                _tokens.Dispose();
+            }
+
+            _disposed = true;
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+
+            GC.SuppressFinalize(this);
+        }
+
         private class Recurse : IDisposable
         {
             private FilterExpressionBuilder<T> _owner;
-            
+
             public Recurse(FilterExpressionBuilder<T> owner)
             {
                 _owner = owner;
-                
+
                 _owner.RecursionDepth++;
                 if (_owner.RecursionDepth > _owner.MaxDepth)
                     throw new InvalidOperationException("Expression depth is too deep");

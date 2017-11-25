@@ -12,7 +12,7 @@ namespace Meekys.OData.Tests.Expressions.TokenParsers
     public class NullTokenParserTests
     {
         private NullTokenParser _parser = new NullTokenParser();
-        
+
         [Theory]
         [InlineData("null")]
         [InlineData("NULL")]
@@ -21,12 +21,12 @@ namespace Meekys.OData.Tests.Expressions.TokenParsers
         {
             // Act
             var result = _parser.Parse(token);
-            
+
             // Assert
             Assert.IsType<ConstantExpression>(result);
-            Assert.Equal(null, (result as ConstantExpression).Value);
+            Assert.Null((result as ConstantExpression).Value);
         }
-        
+
         [Theory]
         [InlineData("null'object'")]
         [InlineData("NULL'object'")]
@@ -35,20 +35,20 @@ namespace Meekys.OData.Tests.Expressions.TokenParsers
         {
             // Act
             var result = Assert.Throws<NotImplementedException>(() => (object)_parser.Parse(token));
-            
+
             // Assert
             Assert.Equal("Explicitly typed null constants not supported", result.Message);
         }
-        
+
         [Theory]
         [InlineData("Invalid")]
         public void Test_Passthrough(string token)
         {
             // Act
             var result = _parser.Parse(token);
-            
+
             // Assert
-            Assert.Equal(null, result);
+            Assert.Null(result);
         }
     }
 }
