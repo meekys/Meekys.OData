@@ -12,7 +12,7 @@ namespace Meekys.OData.Tests.Expressions.TokenParsers
     public class BooleanTokenParserTests
     {
         private BooleanTokenParser _parser = new BooleanTokenParser();
-        
+
         [Theory]
         [InlineData("true")]
         [InlineData("TRUE")]
@@ -22,12 +22,12 @@ namespace Meekys.OData.Tests.Expressions.TokenParsers
         {
             // Act
             var result = _parser.Parse(token);
-            
+
             // Assert
             Assert.IsType<ConstantExpression>(result);
-            Assert.Equal(true, (result as ConstantExpression).Value);
+            Assert.Equal((object)true, (result as ConstantExpression).Value);
         }
-        
+
         [Theory]
         [InlineData("false")]
         [InlineData("FALSE")]
@@ -37,21 +37,21 @@ namespace Meekys.OData.Tests.Expressions.TokenParsers
         {
             // Act
             var result = _parser.Parse(token);
-            
+
             // Assert
             Assert.IsType<ConstantExpression>(result);
-            Assert.Equal(false, (result as ConstantExpression).Value);
+            Assert.Equal((object)false, (result as ConstantExpression).Value);
         }
-        
+
         [Theory]
         [InlineData("Invalid")]
         public void Test_Passthrough(string token)
         {
             // Act
             var result = _parser.Parse(token);
-            
+
             // Assert
-            Assert.Equal(null, result);
+            Assert.Null(result);
         }
     }
 }

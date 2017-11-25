@@ -12,7 +12,7 @@ namespace Meekys.OData.Tests.Expressions.TokenParsers
     public class ByteTokenParserTests
     {
         private ByteTokenParser _parser = new ByteTokenParser();
-        
+
         [Theory]
         [InlineData("0", 0)]
         [InlineData("1", 1)]
@@ -22,12 +22,12 @@ namespace Meekys.OData.Tests.Expressions.TokenParsers
         {
             // Act
             var result = _parser.Parse(token);
-            
+
             // Assert
             Assert.IsType<ConstantExpression>(result);
             Assert.Equal(expected, (result as ConstantExpression).Value);
         }
-        
+
         [Theory]
         [InlineData("-1")]
         [InlineData("256")]
@@ -36,9 +36,9 @@ namespace Meekys.OData.Tests.Expressions.TokenParsers
         {
             // Act
             var result = _parser.Parse(token);
-            
+
             // Assert
-            Assert.Equal(null, result);
+            Assert.Null(result);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Meekys.OData.Tests.Expressions.TokenParsers
     public class Int16TokenParserTests
     {
         private Int16TokenParser _parser = new Int16TokenParser();
-        
+
         [Theory]
         [InlineData("0", 0)]
         [InlineData("1", 1)]
@@ -23,12 +23,12 @@ namespace Meekys.OData.Tests.Expressions.TokenParsers
         {
             // Act
             var result = _parser.Parse(token);
-            
+
             // Assert
             Assert.IsType<ConstantExpression>(result);
             Assert.Equal(expected, (result as ConstantExpression).Value);
         }
-        
+
         [Theory]
         [InlineData("Invalid")]
         [InlineData("32768")]
@@ -37,9 +37,9 @@ namespace Meekys.OData.Tests.Expressions.TokenParsers
         {
             // Act
             var result = _parser.Parse(token);
-            
+
             // Assert
-            Assert.Equal(null, result);
+            Assert.Null(result);
         }
     }
 }

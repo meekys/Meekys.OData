@@ -8,19 +8,14 @@ namespace Meekys.OData.Expressions.TokenParsers
 {
     public class BooleanTokenParser : ITokenParser
     {
-        private const string TrueNumber = "1";
-        private const string FalseNumber = "0";
-        
         public Expression Parse(string token)
         {
-            if (string.Equals(token, System.Boolean.TrueString, StringComparison.OrdinalIgnoreCase)
-                /*|| token == TrueNumber*/)
+            if (string.Equals(token, bool.TrueString, StringComparison.OrdinalIgnoreCase))
                 return Expression.Constant(true);
-                
-            if (string.Equals(token, System.Boolean.FalseString, StringComparison.OrdinalIgnoreCase)
-                /*|| token == FalseNumber*/)
+
+            if (string.Equals(token, bool.FalseString, StringComparison.OrdinalIgnoreCase))
                 return Expression.Constant(false);
-                
+
             return null;
         }
     }

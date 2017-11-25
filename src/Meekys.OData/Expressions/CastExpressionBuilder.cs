@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -10,7 +12,7 @@ using Meekys.Common.Extensions;
 
 namespace Meekys.OData.Expressions
 {
-    public class CastExpressionBuilder
+    public static class CastExpressionBuilder
     {
         public static Expression Build<TCastTo>(Expression input)
         {
@@ -29,7 +31,9 @@ namespace Meekys.OData.Expressions
                 return Expression.Convert(input, castTo); // If it's a property/method/etc, convert it
 
             // If it's a constant, convert it inline
-            return Expression.Constant(Convert.ChangeType(constant.Value, Nullable.GetUnderlyingType(castTo) ?? castTo), castTo);
+            return Expression.Constant(
+                Convert.ChangeType(constant.Value, Nullable.GetUnderlyingType(castTo) ?? castTo, CultureInfo.InvariantCulture),
+                castTo);
         }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -12,7 +13,7 @@ namespace Meekys.OData.Tests.Expressions.TokenParsers
     public class DecimalTokenParserTests
     {
         private DecimalTokenParser _parser = new DecimalTokenParser();
-        
+
         [Theory]
         [InlineData("0M")]
         [InlineData("1M")]
@@ -24,13 +25,13 @@ namespace Meekys.OData.Tests.Expressions.TokenParsers
         [InlineData("79228162514264337593543950335M")]
         [InlineData("-79228162514264337593543950335M")]
         public void Test_Int64(string token)
-        {   
+        {
             // Arrange
-            var expected = decimal.Parse(token.Substring(0, token.Length - 1));
-            
+            var expected = decimal.Parse(token.Substring(0, token.Length - 1), CultureInfo.InvariantCulture);
+
             // Act
             var result = _parser.Parse(token);
-            
+
             // Assert
             Assert.IsType<ConstantExpression>(result);
             Assert.Equal(expected, (result as ConstantExpression).Value);
@@ -43,20 +44,20 @@ namespace Meekys.OData.Tests.Expressions.TokenParsers
         {
             // Act
             var result = Assert.Throws<FormatException>(() => (object)_parser.Parse(token));
-            
+
             // Assert
-            Assert.Equal(String.Format("Unable to parse Decimal token: {0}", token), result.Message);
+            Assert.Equal($"Unable to parse Decimal token: {token}", result.Message);
         }
-        
+
         [Theory]
         [InlineData("Invalid")]
         public void Test_Passthrough(string token)
         {
             // Act
             var result = _parser.Parse(token);
-            
+
             // Assert
-            Assert.Equal(null, result);
+            Assert.Null(result);
         }
     }
 }

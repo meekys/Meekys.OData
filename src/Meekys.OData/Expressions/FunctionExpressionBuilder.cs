@@ -2,31 +2,31 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 using System.Reflection;
+using System.Threading.Tasks;
 
 using Meekys.Common;
 using Meekys.Common.Extensions;
 
 namespace Meekys.OData.Expressions
 {
-    public class FunctionExpressionBuilder
+    public static class FunctionExpressionBuilder
     {
-        public static IFunctionSource FunctionBuilder = null;
+        public static IFunctionSource FunctionBuilder { get; set; }
 
         public static Expression Build(string name, Expression[] arguments)
         {
             var method = GetFunctionMethod(name, arguments.Select(a => a.Type).ToArray());
 
             if (method == null)
-            	throw new InvalidOperationException($"Unmatched function {name}({arguments.Select(a => a.Type.Name).ToCsv()})");
-            
+                throw new InvalidOperationException($"Unmatched function {name}({arguments.Select(a => a.Type.Name).ToCsv()})");
+
             return BuildPropertyFunctionExpression(method, arguments)
                 ?? BuildStaticMethodExpression(method, arguments)
                 ?? BuildMemberMethodExpression(method, arguments)
                 ?? BuildUnknownMemberExpression(method, arguments);
         }
-        
+
         private static MemberInfo GetFunctionMethod(string functionName, Type[] argumentTypes)
         {
             var builder = FunctionBuilder ?? new DefaultFunctionSource();
@@ -40,7 +40,7 @@ namespace Meekys.OData.Expressions
 
             if (property == null)
                 return null;
-        
+
             return Expression.Property(arguments[0], property);
         }
 
@@ -75,7 +75,9 @@ namespace Meekys.OData.Expressions
 
         private static Expression BuildUnknownMemberExpression(MemberInfo member, Expression[] arguments)
         {
-            throw new NotImplementedException($"Functions member of type {member.GetType()} is not supported");
+            var argumentTypes = arguments.Select(a => a.Type).ToList();
+
+            throw new NotImplementedException($"Functions member of type {member.GetType()}({argumentTypes}) is not supported");
         }
     }
 }
