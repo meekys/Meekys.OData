@@ -21,6 +21,9 @@ namespace Meekys.OData.Expressions
 
         public static Expression Build(Type castTo, Expression input)
         {
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
+
             // If it's the same type, nothing needs to be done
             if (input.Type == castTo)
                 return input;

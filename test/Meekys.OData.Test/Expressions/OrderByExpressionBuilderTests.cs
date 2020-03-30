@@ -46,7 +46,7 @@ namespace Bills.Tests.Expressions
             var results = OrderByExpressionBuilder.Build<TestType>("IntValue, StringValue, DecValue").ToList();
 
             // Assert
-            Assert.Equal(3, results.Count());
+            Assert.Equal(3, results.Count);
 
             Assert.False(results[0].Descending);
             Assert.Equal("item => item.IntValue", results[0].Expression.ToString());
@@ -65,7 +65,7 @@ namespace Bills.Tests.Expressions
             var results = OrderByExpressionBuilder.Build<TestType>("IntValue desc, StringValue desc, DecValue desc").ToList();
 
             // Assert
-            Assert.Equal(3, results.Count());
+            Assert.Equal(3, results.Count);
 
             Assert.True(results[0].Descending);
             Assert.Equal("item => item.IntValue", results[0].Expression.ToString());
@@ -84,7 +84,7 @@ namespace Bills.Tests.Expressions
             var results = OrderByExpressionBuilder.Build<TestType>("IntValue, StringValue desc, DecValue").ToList();
 
             // Assert
-            Assert.Equal(3, results.Count());
+            Assert.Equal(3, results.Count);
 
             Assert.False(results[0].Descending);
             Assert.Equal("item => item.IntValue", results[0].Expression.ToString());

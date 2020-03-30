@@ -82,10 +82,10 @@ namespace Meekys.OData.Tests.Expressions
 
             // Act + Assert
             var canPeekEx = Assert.Throws<ArgumentException>(() => (object)_enumerator.CanPeek(5));
-            Assert.Equal("Offset is larger than buffer size\r\nParameter name: offset", canPeekEx.Message);
+            Assert.Equal("Offset is larger than buffer size (Parameter 'offset')", canPeekEx.Message);
 
             var peekEx = Assert.Throws<ArgumentException>(() => (object)_enumerator.Peek(5));
-            Assert.Equal("Offset is larger than buffer size\r\nParameter name: offset", peekEx.Message);
+            Assert.Equal("Offset is larger than buffer size (Parameter 'offset')", peekEx.Message);
 
             Assert.Equal(0, _fetchCount);
             Assert.False(_fetchEndOfList);
@@ -171,10 +171,10 @@ namespace Meekys.OData.Tests.Expressions
             }
 
             var hasPrevEx = Assert.Throws<ArgumentException>(() => (object)_enumerator.HasPrevious(5));
-            Assert.Equal("Offset is larger than buffer size\r\nParameter name: offset", hasPrevEx.Message);
+            Assert.Equal("Offset is larger than buffer size (Parameter 'offset')", hasPrevEx.Message);
 
             var prevEx = Assert.Throws<ArgumentException>(() => (object)_enumerator.Previous(5));
-            Assert.Equal("Offset is larger than buffer size\r\nParameter name: offset", prevEx.Message);
+            Assert.Equal("Offset is larger than buffer size (Parameter 'offset')", prevEx.Message);
 
             Assert.Equal(0, _fetchCount);
         }

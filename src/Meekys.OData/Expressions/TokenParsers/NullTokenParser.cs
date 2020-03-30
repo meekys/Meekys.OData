@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -13,8 +15,11 @@ namespace Meekys.OData.Expressions.TokenParsers
         {
         }
 
+        [SuppressMessage("Microsoft.CodeAnalysis.Analyzers", "CA1062", Justification = "Asserted")]
         protected override Expression ParseValue(string value)
         {
+            Debug.Assert(value != null, "value should not be null");
+
             if (value.Length > 0)
                 throw new NotImplementedException("Explicitly typed null constants not supported");
 

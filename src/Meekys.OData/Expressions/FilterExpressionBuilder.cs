@@ -16,9 +16,10 @@ namespace Meekys.OData.Expressions
     {
         public static Expression<Func<T, bool>> Build<T>(string filter)
         {
-            var builder = new FilterExpressionBuilder<T>(filter);
-
-            return builder.BuildBoolExpression();
+            using (var builder = new FilterExpressionBuilder<T>(filter))
+            {
+                return builder.BuildBoolExpression();
+            }
         }
     }
 

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -20,8 +22,11 @@ namespace Meekys.OData.Expressions.TokenParsers
                 || type == ExpressionConstants.BinaryX;
         }
 
+        [SuppressMessage("Microsoft.CodeAnalysis.Analyzers", "CA1062", Justification = "Asserted")]
         protected override Expression ParseValue(string value)
         {
+            Debug.Assert(value != null, "value should not be null");
+
             if (value.Length % 2 != 0)
                 throw new FormatException($"Unable to parse binary token: {value}");
 

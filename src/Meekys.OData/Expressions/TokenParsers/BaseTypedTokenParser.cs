@@ -18,6 +18,9 @@ namespace Meekys.OData.Expressions.TokenParsers
 
         public Expression Parse(string token)
         {
+            if (token == null)
+                throw new ArgumentNullException(nameof(token));
+
             var parts = token.Split(ExpressionConstants.Quote);
 
             if (!CheckType(parts[0]))
