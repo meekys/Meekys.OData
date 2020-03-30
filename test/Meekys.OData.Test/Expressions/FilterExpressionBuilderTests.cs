@@ -130,10 +130,10 @@ namespace Meekys.OData.Tests.Expressions
         public void Test_Converting_Float()
         {
             // Arrange
-            var expression = FilterExpressionBuilder.Build<TestType>("2147483647 eq FloatValue");
+            var expression = FilterExpressionBuilder.Build<TestType>($"2147483647 eq FloatValue");
 
             // Assert
-            Assert.Equal("item => (2.147484E+09 == item.FloatValue)", expression.ToString());
+            Assert.Equal("item => (2.1474836E+09 == item.FloatValue)", expression.ToString());
         }
 
         [Fact]

@@ -35,6 +35,9 @@ namespace Meekys.OData.Expressions
 
         public List<OrderByItem> BuildExpressions(string orderBy)
         {
+            if (orderBy == null)
+                throw new ArgumentNullException(nameof(orderBy));
+
             var expressions = orderBy.Split(',')
                 .Select(f => f.Trim())
                 .Where(f => f.Length > 0)

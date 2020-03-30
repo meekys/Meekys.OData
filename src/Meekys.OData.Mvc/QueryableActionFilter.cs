@@ -16,6 +16,9 @@ namespace Meekys.OData.Mvc
     {
         public void OnActionExecuted(ActionExecutedContext context)
         {
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
+
             var objectResult = context.Result as ObjectResult;
             if (objectResult == null)
                 return;

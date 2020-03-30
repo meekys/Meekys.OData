@@ -16,6 +16,12 @@ namespace Meekys.OData.Expressions
 
         public static Expression Build(string name, Expression[] arguments)
         {
+            if (name == null)
+                throw new ArgumentNullException(nameof(name));
+
+            if (arguments == null)
+                throw new ArgumentNullException(nameof(arguments));
+
             var method = GetFunctionMethod(name, arguments.Select(a => a.Type).ToArray());
 
             if (method == null)

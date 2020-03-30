@@ -18,6 +18,9 @@ namespace Meekys.OData.Expressions.TokenParsers
 
         public Expression Parse(string token)
         {
+            if (token == null)
+                throw new ArgumentNullException(nameof(token));
+
             int number;
             if (!(token.Length > 0 && token[0] == '-')
                 && !int.TryParse(token.Substring(0, 1), out number))

@@ -123,7 +123,7 @@ namespace Meekys.OData.Expressions
             return method;
         }
 
-        protected virtual int GetMemberWeight(MemberInfo memberInfo, Type[] paramTypes)
+        private int GetMemberWeight(MemberInfo memberInfo, Type[] paramTypes)
         {
             if (memberInfo is MethodInfo)
                 return GetMethodWeight(memberInfo as MethodInfo, paramTypes);
@@ -134,7 +134,7 @@ namespace Meekys.OData.Expressions
             throw new NotSupportedException($"memberInfo of type {memberInfo.GetType()} is not supported");
         }
 
-        protected int GetPropertyWeight(PropertyInfo propertyInfo, Type[] paramTypes)
+        private int GetPropertyWeight(PropertyInfo propertyInfo, Type[] paramTypes)
         {
             if (paramTypes.Length != 1)
                 return -1;
@@ -152,7 +152,7 @@ namespace Meekys.OData.Expressions
             }
         }
 
-        protected int GetMethodWeight(MethodInfo methodInfo, Type[] paramTypes)
+        private int GetMethodWeight(MethodInfo methodInfo, Type[] paramTypes)
         {
             if (methodInfo.IsStatic)
                 return GetStaticMethodWeight(methodInfo, paramTypes);
@@ -160,7 +160,7 @@ namespace Meekys.OData.Expressions
             return GetMemberMethodWeight(methodInfo, paramTypes);
         }
 
-        protected int GetStaticMethodWeight(MethodInfo methodInfo, Type[] paramTypes)
+        private int GetStaticMethodWeight(MethodInfo methodInfo, Type[] paramTypes)
         {
             var methodParams = methodInfo.GetParameters();
 
@@ -170,7 +170,7 @@ namespace Meekys.OData.Expressions
             return MatchParameters(methodParams.Select(p => p.ParameterType).ToArray(), paramTypes);
         }
 
-        protected int GetMemberMethodWeight(MethodInfo methodInfo, Type[] paramTypes)
+        private int GetMemberMethodWeight(MethodInfo methodInfo, Type[] paramTypes)
         {
             var methodParams = methodInfo.GetParameters();
 

@@ -10,6 +10,9 @@ namespace Meekys.OData.Expressions.TokenParsers
     {
         public Expression Parse(string token)
         {
+            if (token == null)
+                throw new ArgumentNullException(nameof(token));
+
             if (!(token.Length > 0 && token.First() == '\'')
                 || !(token.Length > 0 && token.Last() == '\''))
                 return null;

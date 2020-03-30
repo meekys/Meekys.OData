@@ -14,6 +14,7 @@
         <Rule Id="CA1063" Action="Warning" />
         <Rule Id="CA1065" Action="Warning" />
         <Rule Id="CA1301" Action="Warning" />
+        <Rule Id="CA1303" Action="None" />    <!-- Method passes a literal string as parameter of a call to. Retrieve the following string(s) from a resource table instead -->
         <Rule Id="CA1400" Action="Warning" />
         <Rule Id="CA1401" Action="Warning" />
         <Rule Id="CA1403" Action="Warning" />
